@@ -3,10 +3,12 @@ import { AttendanceService } from '../services/attendence.service';
 import { Attendance, DateRange, ViewType, Employee, EntryForm } from '../modals/attendance-data.model';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-attendence',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,FormsModule],
   templateUrl:'./attendence.component.html',
   styleUrl: './attendence.component.scss',
 })
@@ -28,7 +30,7 @@ export class AttendenceComponent implements OnInit {
   selectedAttendance: Attendance | null = null;
   calendarWeeks: number[][] = [];
 
-  constructor(private attendanceService: AttendanceService) {
+  constructor(private attendanceService:AttendanceService) {
     this.currentView$ = this.attendanceService.currentView$;
     this.dateRange$ = this.attendanceService.dateRange$;
     this.selectedDate$ = this.attendanceService.selectedDate$;
