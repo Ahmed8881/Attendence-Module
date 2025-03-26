@@ -1,1 +1,652 @@
-<p>attendence works!</p>
+<div class="attendance-container">
+    <!-- Header with navigation and view toggles -->
+    <div class="header">
+        <div class="date-navigation">
+            <button class="nav-btn" (click)="navigatePrevious()">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M15.75 19.5 8.25 12l7.5-7.5"
+                    />
+                </svg>
+            </button>
+            <button class="calendar-btn">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6.75 2.994v2.25m10.5-2.25v2.25m-14.252 13.5V7.491a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v11.251m-18 0a2.25 2.25 0 0 0 2.25 2.25h13.5a2.25 2.25 0 0 0 2.25-2.25m-18 0v-7.5a2.25 2.25 0 0 1 2.25-2.25h13.5a2.25 2.25 0 0 1 2.25 2.25v7.5m-6.75-6h2.25m-9 2.25h4.5m.002-2.25h.005v.006H12v-.006Zm-.001 4.5h.006v.006h-.006v-.005Zm-2.25.001h.005v.006H9.75v-.006Zm-2.25 0h.005v.005h-.006v-.005Zm6.75-2.247h.005v.005h-.005v-.005Zm0 2.247h.006v.006h-.006v-.006Zm2.25-2.248h.006V15H16.5v-.005Z"
+                    />
+                </svg>
+            </button>
+            <button class="nav-btn" (click)="navigateNext()">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m8.25 4.5 7.5 7.5-7.5 7.5"
+                    />
+                </svg>
+            </button>
+            <ng-container *ngIf="dateRange$ | async as range">
+                <span class="date-range">
+                    <ng-container *ngIf="(currentView$ | async) === 'calendar'">
+                        {{ getMonthName(range.start.getMonth()) }}
+                        {{ range.start.getFullYear() }}
+                    </ng-container>
+                    <ng-container *ngIf="(currentView$ | async) !== 'calendar'">
+                        {{ range.start.getDate() }}-{{
+                            getMonthName(range.start.getMonth()).substring(
+                                0,
+                                3
+                            )
+                        }}-{{ range.start.getFullYear() }} -
+                        {{ range.end.getDate() }}-{{
+                            getMonthName(range.end.getMonth()).substring(0, 3)
+                        }}-{{ range.end.getFullYear() }}
+                    </ng-container>
+                </span>
+            </ng-container>
+        </div>
+
+        <div class="view-toggles">
+            <button
+                class="view-btn"
+                [ngClass]="{ active: (currentView$ | async) === 'list' }"
+                (click)="setView('list')"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                    />
+                </svg>
+            </button>
+            <button
+                class="view-btn"
+                [ngClass]="{ active: (currentView$ | async) === 'table' }"
+                (click)="setView('table')"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M3.375 19.5h17.25m-17.25 0a1.125 1.125 0 0 1-1.125-1.125M3.375 19.5h7.5c.621 0 1.125-.504 1.125-1.125m-9.75 0V5.625m0 12.75v-1.5c0-.621.504-1.125 1.125-1.125m18.375 2.625V5.625m0 12.75c0 .621-.504 1.125-1.125 1.125m1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125m0 3.75h-7.5A1.125 1.125 0 0 1 12 18.375m9.75-12.75c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125m19.5 0v1.5c0 .621-.504 1.125-1.125 1.125M2.25 5.625v1.5c0 .621.504 1.125 1.125 1.125m0 0h17.25m-17.25 0h7.5c.621 0 1.125.504 1.125 1.125M3.375 8.25c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125m17.25-3.75h-7.5c-.621 0-1.125.504-1.125 1.125m8.625-1.125c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125M12 10.875v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 10.875c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125M13.125 12h7.5m-7.5 0c-.621 0-1.125.504-1.125 1.125M20.625 12c.621 0 1.125.504 1.125 1.125v1.5c0 .621-.504 1.125-1.125 1.125m-17.25 0h7.5M12 14.625v-1.5m0 1.5c0 .621-.504 1.125-1.125 1.125M12 14.625c0 .621.504 1.125 1.125 1.125m-2.25 0c.621 0 1.125.504 1.125 1.125m0 1.5v-1.5m0 0c0-.621.504-1.125 1.125-1.125m0 0h7.5"
+                    />
+                </svg>
+            </button>
+            <button
+                class="view-btn"
+                [ngClass]="{ active: (currentView$ | async) === 'calendar' }"
+                (click)="setView('calendar')"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="1.5"
+                    stroke="currentColor"
+                    class="size-6"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z"
+                    />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- List View -->
+    <ng-container *ngIf="(currentView$ | async) === 'list'">
+        <div class="view-container list-view">
+            <div class="header-info">
+                <div class="shift-info">General [ 9:00 AM - 6:00 PM ]</div>
+                <div class="notes-input">
+                    <input
+                        type="text"
+                        placeholder="Add notes for check-in"
+                        [(ngModel)]="notes"
+                    />
+                </div>
+                <div class="check-in-btn">
+                    <button>
+                        Check-in
+                        <div class="time">03:04:00 Hrs</div>
+                    </button>
+                    <div class="timer-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="attendance-list">
+                <ng-container *ngFor="let item of attendanceData">
+                    <div
+                        class="day-row"
+                        [ngClass]="{ today: isToday(item.date) }"
+                        (click)="openEntryForm(item)"
+                    >
+                        <div class="day-info">
+                            <div class="day-name">
+                                {{ getDayName(item.date) }}
+                            </div>
+                            <div
+                                class="day-number"
+                                [ngClass]="{
+                                    'today-highlight': isToday(item.date)
+                                }"
+                            >
+                                {{ item.date.getDate() }}
+                            </div>
+                        </div>
+
+                        <div class="time-info" *ngIf="item.firstIn">
+                            <div class="check-time">{{ item.firstIn }}</div>
+                        </div>
+
+                        <div class="timeline">
+                            <div class="timeline-track">
+                                <ng-container *ngIf="item.status === 'Weekend'">
+                                    <div class="timeline-marker weekend-marker">
+                                        <div class="marker-label">Weekend</div>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="item.status === 'Absent'">
+                                    <div class="timeline-marker absent-marker">
+                                        <div class="marker-label">Absent</div>
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngIf="item.status === 'Present'">
+                                    <div class="timeline-progress">
+                                        <div
+                                            class="progress-line"
+                                            [ngStyle]="{
+                                                left: getProgressPosition(item)
+                                                    .start,
+                                                width:
+                                                    'calc(' +
+                                                    getProgressPosition(item)
+                                                        .end +
+                                                    ' - ' +
+                                                    getProgressPosition(item)
+                                                        .start +
+                                                    ')'
+                                            }"
+                                        ></div>
+                                        <div
+                                            class="progress-start"
+                                            [ngStyle]="{
+                                                left: getProgressPosition(item)
+                                                    .start
+                                            }"
+                                        ></div>
+                                        <div
+                                            class="progress-end"
+                                            [ngStyle]="{
+                                                left: getProgressPosition(item)
+                                                    .end
+                                            }"
+                                        ></div>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+
+                        <div class="checkout-info" *ngIf="item.lastOut">
+                            <div class="checkout-time">{{ item.lastOut }}</div>
+                            <div class="early-by" *ngIf="isToday(item.date)">
+                                Early by 05:56
+                            </div>
+                        </div>
+
+                        <div class="hours-worked">
+                            <div class="hours">
+                                {{ item.totalHours || "00:00" }}
+                            </div>
+                            <div class="label">Hrs worked</div>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- Table View -->
+    <ng-container *ngIf="(currentView$ | async) === 'table'">
+        <div class="view-container table-view">
+            <table class="attendance-table">
+                <thead>
+                    <tr class="bg-[#1DBFCC]">
+                        <th>Date</th>
+                        <th>First In</th>
+                        <th>Last Out</th>
+                        <th>Total Hours</th>
+                        <th>Payable Hours</th>
+                        <th>Overtime/Deviation</th>
+                        <th>Status</th>
+                        <th>Shift(s)</th>
+                        <th>Regularization</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        *ngFor="let item of attendanceData"
+                        [ngClass]="{ weekend: item.status === 'Weekend' }"
+                    >
+                        <td>
+                            {{ getDayName(item.date).substring(0, 3) }},
+                            {{ item.date.getDate() }}-{{
+                                getMonthName(item.date.getMonth()).substring(
+                                    0,
+                                    3
+                                )
+                            }}-{{ item.date.getFullYear() }}
+                        </td>
+                        <td>{{ item.firstIn || "-" }}</td>
+                        <td>{{ item.lastOut || "-" }}</td>
+                        <td>{{ item.totalHours || "-" }}</td>
+                        <td>{{ item.payableHours || "-" }}</td>
+                        <td
+                            [ngClass]="{
+                                'overtime-negative': item.overtime === '08:00',
+                                'overtime-positive': item.overtime === '00:00'
+                            }"
+                        >
+                            {{ item.overtime || "-" }}
+                        </td>
+                        <td>
+                            <span
+                                class="status-badge"
+                                [ngClass]="getStatusClass(item.status)"
+                            >
+                                {{ item.status }}
+                            </span>
+                        </td>
+                        <td>{{ item.shift }}</td>
+                        <td>{{ item.regularization || "" }}</td>
+                        <td class="delete">
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="size-4 text-[#FF0000] hover:text-[#FF0000] cursor-pointer"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke-width="1.5"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                                />
+                            </svg>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </ng-container>
+
+    <!-- Calendar View -->
+    <ng-container *ngIf="(currentView$ | async) === 'calendar'">
+        <div class="view-container calendar-view">
+            <div class="calendar">
+                <div class="calendar-header">
+                    <div class="weekday">Sun</div>
+                    <div class="weekday">Mon</div>
+                    <div class="weekday">Tue</div>
+                    <div class="weekday">Wed</div>
+                    <div class="weekday">Thu</div>
+                    <div class="weekday">Fri</div>
+                    <div class="weekday">Sat</div>
+                </div>
+
+                <ng-container *ngIf="dateRange$ | async as range">
+                    <div class="calendar-body">
+                        <ng-container *ngFor="let week of calendarWeeks">
+                            <div class="calendar-row">
+                                <ng-container
+                                    *ngFor="
+                                        let day of week;
+                                        let dayIndex = index
+                                    "
+                                >
+                                    <div
+                                        class="calendar-cell"
+                                        [ngClass]="{
+                                            weekend:
+                                                dayIndex === 0 ||
+                                                dayIndex === 6,
+                                            'empty-cell': day === 0
+                                        }"
+                                    >
+                                        <ng-container *ngIf="day !== 0">
+                                            <div
+                                                class="day-number"
+                                                [ngClass]="{
+                                                    'today-highlight': isToday(
+                                                        createDate(
+                                                            range.start.getFullYear(),
+                                                            range.start.getMonth(),
+                                                            day
+                                                        )
+                                                    )
+                                                }"
+                                            >
+                                                {{ day }}
+                                            </div>
+
+                                            <ng-container
+                                                *ngIf="
+                                                    getAttendanceForDay(
+                                                        day,
+                                                        range.start.getMonth(),
+                                                        range.start.getFullYear()
+                                                    ) as attendance
+                                                "
+                                            >
+                                                <div
+                                                    class="status-box"
+                                                    [ngClass]="
+                                                        getStatusClass(
+                                                            attendance.status
+                                                        )
+                                                    "
+                                                    (click)="
+                                                        selectDate(
+                                                            attendance.date,
+                                                            attendance
+                                                        )
+                                                    "
+                                                >
+                                                    <div class="status-text">
+                                                        {{ attendance.status }}
+                                                    </div>
+                                                    <div
+                                                        class="hours-text"
+                                                        *ngIf="
+                                                            attendance.firstIn
+                                                        "
+                                                    >
+                                                        {{
+                                                            attendance.firstIn.split(
+                                                                " "
+                                                            )[0]
+                                                        }}
+                                                        Hrs
+                                                    </div>
+                                                </div>
+                                            </ng-container>
+                                        </ng-container>
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </ng-container>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- Date Detail Popup -->
+    <div class="date-detail-popup" *ngIf="showDateDetail && selectedDateDetail">
+        <div class="popup-content">
+            <div class="popup-header">
+                <div class="popup-title">
+                    {{ selectedDateDetail.getDate() }}
+                    {{ getMonthName(selectedDateDetail.getMonth()) }}
+                    {{ selectedDateDetail.getFullYear() }}
+                </div>
+                <!-- close btn -->
+                <button class="close-btn" (click)="closeDateDetail()">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="size-6"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M6 18 18 6M6 6l12 12"
+                        />
+                    </svg>
+                </button>
+            </div>
+            <div class="popup-body">
+                <div class="detail-row">
+                    <div class="detail-label">Check-in</div>
+                    <div class="detail-value check-in-time">09:00 AM</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Check-out</div>
+                    <div class="detail-value check-out-time">06:00 PM</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Entry Form Sidebar -->
+    <div class="entry-form-sidebar" *ngIf="selectedAttendance">
+        <div class="sidebar-header">
+            <div class="sidebar-title">
+                {{ getFullDayName(selectedAttendance.date) }},
+                {{ selectedAttendance.date.getDate() }}
+                {{ getMonthName(selectedAttendance.date.getMonth()) }}
+                {{ selectedAttendance.date.getFullYear() }}
+                <span class="shift-info">General [9:00 AM - 6:00 PM]</span>
+            </div>
+            <div class="header-actions">
+                <button class="audit-btn">Audit History</button>
+                <button class="close-btn" (click)="closeEntryForm()">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        class="size-6"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M6 18 18 6M6 6l12 12"
+                        />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="add-entry-section">
+            <button class="add-entry-btn" (click)="toggleAddEntryForm()">
+                Add Entry
+            </button>
+        </div>
+
+        <ng-container *ngIf="entryForm$ | async as form">
+            <!-- Add Entry Form - Shows when showAddEntryForm is true -->
+            <div class="form-container" *ngIf="showAddEntryForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <div class="time-input-group">
+                            <input
+                                type="time"
+                                [ngModel]="form.checkInTime"
+                                class="time-picker"
+                                (ngModelChange)="
+                                    updateEntryForm('checkInTime', $event)
+                                "
+                            />
+                            <div class="time-type-dropdown">
+                                <select
+                                    [ngModel]="form.checkInTimeType"
+                                    (ngModelChange)="
+                                        updateEntryForm(
+                                            'checkInTimeType',
+                                            $event
+                                        )
+                                    "
+                                    class="time-type-select"
+                                >
+                                    <option>Current Day</option>
+                                    <option>Previous Day</option>
+                                </select>
+                            </div>
+                        </div>
+                        <textarea
+                            placeholder="Add notes for check-in"
+                            [ngModel]="form.checkInNotes"
+                            (ngModelChange)="
+                                updateEntryForm('checkInNotes', $event)
+                            "
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="time-input-group">
+                            <input
+                                type="time"
+                                placeholder="hh:mm"
+                                [ngModel]="form.checkOutTime"
+                                (ngModelChange)="
+                                    updateEntryForm('checkOutTime', $event)
+                                "
+                            />
+                            <div class="time-type-dropdown">
+                                <select
+                                    [ngModel]="form.checkOutTimeType"
+                                    (ngModelChange)="
+                                        updateEntryForm(
+                                            'checkOutTimeType',
+                                            $event
+                                        )
+                                    "
+                                >
+                                    <option>Current Day</option>
+                                    <option>Next Day</option>
+                                </select>
+                            </div>
+                        </div>
+                        <textarea
+                            placeholder="Add notes for check-out"
+                            [ngModel]="form.checkOutNotes"
+                            (ngModelChange)="
+                                updateEntryForm('checkOutNotes', $event)
+                            "
+                        ></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="save-btn" (click)="saveEntry()">Save</button>
+                    <button class="cancel-btn" (click)="toggleAddEntryForm()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Status Info - Shows when showAddEntryForm is false -->
+            <div class="status-info" *ngIf="!showAddEntryForm">
+                <ng-container *ngIf="selectedAttendance.status === 'Present'">
+                    <div class="present-info">
+                        <div class="status-illustration">
+                            <img
+                                src="https://static.zohocdn.com/zp5/people5/images/nodata/no_check_in_and_check_out.bf1961d07cfd748935cf08cf8a7a3be5.svg"
+                                alt="Present illustration"
+                                class="w-64 h-64"
+                            />
+                            <!-- Added Tailwind classes for size control -->
+                        </div>
+                        <div class="status-message">
+                            You were marked present for the day
+                        </div>
+                    </div>
+                </ng-container>
+
+                <ng-container
+                    *ngIf="
+                        selectedAttendance.status === 'Absent' ||
+                        selectedAttendance.status === 'Weekend'
+                    "
+                >
+                    <div class="absent-info">
+                        <div class="absent-illustration">
+                            <img
+                                src="https://static.zohocdn.com/zp5/people5/images/nodata/no_check_in_and_check_out.bf1961d07cfd748935cf08cf8a7a3be5.svg"
+                                alt="Absent illustration"
+                                class="w-64 h-64"
+                            />
+                        </div>
+                        <div class="absent-message">
+                            You were marked absent for the day
+                        </div>
+                        <button class="apply-leave-btn" (click)="applyLeave()">
+                            Apply Leave
+                        </button>
+                    </div>
+                </ng-container>
+            </div>
+
+            <div class="entry-summary">
+                <div class="summary-item">
+                    <div class="summary-label">First Check-In</div>
+                    <div class="summary-value">
+                        {{ selectedAttendance.firstIn || "-" }}
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Last Check-Out</div>
+                    <div class="summary-value">
+                        {{ selectedAttendance.lastOut || "-" }}
+                    </div>
+                </div>
+                <div class="summary-item">
+                    <div class="summary-label">Total Hours</div>
+                    <div class="summary-value">
+                        {{ selectedAttendance.totalHours || "00:00" }} Hrs
+                    </div>
+                </div>
+            </div>
+        </ng-container>
+    </div>
+</div>
