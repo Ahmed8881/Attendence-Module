@@ -1,27 +1,10 @@
 # AttendenceModule
+## Attendence Module For HR
+![image](https://github.com/user-attachments/assets/172a3952-6fc0-4d16-aef3-20cec73f0d88)
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.1.4.
+![image](https://github.com/user-attachments/assets/56048e48-0e33-444c-9353-b1cd00a8920e)
+![image](https://github.com/user-attachments/assets/abe230bd-eb57-4bfb-93e7-e0544512e825)
+![image](https://github.com/user-attachments/assets/ef4d9455-9029-4ec0-8c7d-f14347464cbb)
+![image](https://github.com/user-attachments/assets/78f76389-9437-4ab1-87f5-3e786bb27f79)
+![image](https://github.com/user-attachments/assets/4c817fa2-4108-4ccf-9148-09fce5af7057)
 
-## Development server
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
-
-## Code scaffolding
-
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
